@@ -1,0 +1,35 @@
+name: medconnect
+description: >-
+  MedConnect — in-store doctor teleconsultation. One Flutter app with four modes:
+  store kiosk (patients), doctor, pharmacy counter and owner dashboard.
+  Video calls run on Agora.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"  # Flutter 3.27 or newer
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Video calling (all media goes through Agora's network, not our server)
+  agora_rtc_engine: ^6.5.0
+
+  # MVVM state (ChangeNotifier view models)
+  provider: ^6.1.2
+
+  http: ^1.2.2
+  shared_preferences: ^2.3.2
+  permission_handler: ">=11.3.1 <13.0.0"
+  intl: ">=0.19.0 <0.21.0"
+  # Keeps the kiosk tablet screen on
+  wakelock_plus: ^1.2.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
