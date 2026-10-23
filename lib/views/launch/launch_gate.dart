@@ -7,7 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/doctor.dart';
 import '../../data/models/store.dart';
 import '../admin/admin_view.dart';
-import '../auth/pin_login_view.dart';
+import '../auth/otp_login_view.dart';
 import '../doctor/doctor_dashboard_view.dart';
 import '../kiosk/kiosk_setup_view.dart';
 import '../kiosk/kiosk_view.dart';
@@ -16,7 +16,7 @@ import '../role_select/role_select_view.dart';
 import '../settings/server_settings_view.dart';
 
 /// Root of the app. Shows the right screen for how this device is set up:
-/// role picker → (kiosk store setup | PIN login) → the role's home screen.
+/// role picker → mobile OTP sign-in → (owner: pick store) → the role's home screen.
 class LaunchGate extends StatelessWidget {
   const LaunchGate({super.key});
 
@@ -30,19 +30,26 @@ class LaunchGate extends StatelessWidget {
       screen = const ServerSettingsView(firstRun: true);
     } else if (role == null) {
       screen = const RoleSelectView();
-    } else if (role == DeviceRole.kiosk) {
-      final storeId = session.kioskStoreId;
-      screen = storeId == null ? const KioskSetupView() : KioskView(key: ValueKey(storeId), storeId: storeId);
     } else if (!session.isSignedIn) {
-      screen = PinLoginView(key: ValueKey(role), role: role);
+      screen = OtpLoginView(key: ValueKey(role), role: role);
     } else {
       final profile = session.profile!;
-      screen = switch (role) {
-        DeviceRole.doctor => DoctorDashboardView(key: ValueKey(session.token), doctor: Doctor.fromJson(profile)),
-        DeviceRole.pharmacy => PharmacyView(key: ValueKey(session.token), store: Store.fromJson(profile)),
-        DeviceRole.admin => AdminView(key: ValueKey(session.token)),
-        DeviceRole.kiosk => const SizedBox.shrink(),
-      };
+      final storeJson = session.storeJson;
+      final needsStore = role == DeviceRole.kiosk || role == DeviceRole.pharmacy;
+      if (needsStore && storeJson == null) {
+        // Owner signed in on a kiosk / counter → pick the store once.
+        screen = const KioskSetupView();
+      } else {
+        screen = switch (role) {
+          DeviceRole.kiosk => KioskView(key: ValueKey(storeJson!['id']), storeId: '${storeJson['id']}'),
+          DeviceRole.doctor => DoctorDashboardView(
+              key: ValueKey(profile['uid']),
+              doctor: Doctor.fromJson((profile['doctor'] as Map<String, dynamic>?) ?? const {}),
+            ),
+          DeviceRole.pharmacy => PharmacyView(key: ValueKey(storeJson!['id']), store: Store.fromJson(storeJson)),
+          DeviceRole.admin => AdminView(key: ValueKey(profile['uid'])),
+        };
+      }
     }
 
     return Stack(

@@ -49,17 +49,6 @@ class _AdminBodyState extends State<_AdminBody> {
     context.read<AdminViewModel>().onNotice = (m) => showNotice(context, m);
   }
 
-  Future<void> _reset(AdminViewModel vm) async {
-    final ok = await confirmDialog(
-      context,
-      title: 'Reset demo data?',
-      message: 'Deletes all consultations and prescriptions and restores the demo stores and doctors.',
-      confirmLabel: 'Reset',
-      destructive: true,
-    );
-    if (ok) await vm.resetDemoData();
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AdminViewModel>();
@@ -72,20 +61,7 @@ class _AdminBodyState extends State<_AdminBody> {
         title: const BrandLogo(subtitle: 'Owner dashboard', size: 34),
         actions: [
           IconButton(tooltip: 'Refresh', onPressed: vm.refresh, icon: const Icon(Icons.refresh)),
-          AccountMenu(
-            onSignOut: vm.logout,
-            onChangeMode: vm.changeMode,
-            extra: [
-              PopupMenuItem(
-                value: () => _reset(vm),
-                child: const ListTile(
-                  leading: Icon(Icons.restart_alt),
-                  title: Text('Reset demo data'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
-          ),
+          AccountMenu(onSignOut: vm.logout, onChangeMode: vm.changeMode),
         ],
       ),
       body: RefreshIndicator(
@@ -221,12 +197,7 @@ class _AdminBodyState extends State<_AdminBody> {
                 const SizedBox(height: 16),
                 SectionCard(
                   title: 'Stores',
-                  subtitle: 'Set up each store tablet once from the app (Store kiosk mode)',
-                  trailing: FilledButton.icon(
-                    onPressed: () => _showAddStore(context, vm),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add store'),
-                  ),
+                  subtitle: "From the Gladskin billing system. Each tablet signs in with that store's staff login.",
                   child: Column(children: [
                     for (final st in vm.stores)
                       ListTile(
@@ -234,7 +205,12 @@ class _AdminBodyState extends State<_AdminBody> {
                         leading: const Icon(Icons.storefront_outlined, color: AppColors.primary),
                         title: Text(st.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                         subtitle: Text(
-                          '${st.address}, ${st.city}\nPharmacist ${st.pharmacistName} · DL ${st.drugLicenseNo} · ${st.phone}',
+                          [
+                            [st.address, st.city].where((x) => x.isNotEmpty).join(', '),
+                            [if (st.drugLicenseNo.isNotEmpty) 'DL ${st.drugLicenseNo}', st.phone]
+                                .where((x) => x.isNotEmpty)
+                                .join(' · '),
+                          ].join('\n'),
                         ),
                         isThreeLine: true,
                       ),
@@ -256,7 +232,7 @@ Future<void> _showAddDoctor(BuildContext context, AdminViewModel vm) async {
   final exp = TextEditingController();
   final fee = TextEditingController(text: '200');
   final langs = TextEditingController(text: 'English, Kannada');
-  final pin = TextEditingController();
+  final phone = TextEditingController();
   var specialty = AppConstants.specialties.first;
 
   await showDialog<void>(
@@ -292,7 +268,7 @@ Future<void> _showAddDoctor(BuildContext context, AdminViewModel vm) async {
               _DialogField(controller: exp, label: 'Experience (years)', number: true),
               _DialogField(controller: fee, label: 'Fee (₹)', number: true),
               _DialogField(controller: langs, label: 'Languages (comma separated)'),
-              _DialogField(controller: pin, label: 'Login PIN (4–6 digits)', number: true),
+              _DialogField(controller: phone, label: 'Mobile number (the doctor signs in with an OTP)', number: true),
             ]),
           ),
         ),
@@ -308,7 +284,7 @@ Future<void> _showAddDoctor(BuildContext context, AdminViewModel vm) async {
                 'experienceYears': int.tryParse(exp.text.trim()) ?? 0,
                 'fee': int.tryParse(fee.text.trim()) ?? 0,
                 'languages': langs.text.trim(),
-                'pin': pin.text.trim(),
+                'phone': phone.text.trim(),
               });
               if (ok && ctx.mounted) Navigator.pop(ctx);
             },
@@ -316,53 +292,6 @@ Future<void> _showAddDoctor(BuildContext context, AdminViewModel vm) async {
           ),
         ],
       ),
-    ),
-  );
-}
-
-Future<void> _showAddStore(BuildContext context, AdminViewModel vm) async {
-  final fields = {
-    'name': TextEditingController(),
-    'address': TextEditingController(),
-    'city': TextEditingController(),
-    'phone': TextEditingController(),
-    'pharmacistName': TextEditingController(),
-    'drugLicenseNo': TextEditingController(),
-    'staffPin': TextEditingController(),
-  };
-  const labels = {
-    'name': 'Store name',
-    'address': 'Address',
-    'city': 'City',
-    'phone': 'Phone',
-    'pharmacistName': 'Pharmacist',
-    'drugLicenseNo': 'Drug licence no.',
-    'staffPin': 'Counter staff PIN',
-  };
-
-  await showDialog<void>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: const Text('Add store'),
-      content: SizedBox(
-        width: 460,
-        child: SingleChildScrollView(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            for (final e in fields.entries)
-              _DialogField(controller: e.value, label: labels[e.key]!, number: e.key == 'staffPin'),
-          ]),
-        ),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-        FilledButton(
-          onPressed: () async {
-            final ok = await vm.addStore({for (final e in fields.entries) e.key: e.value.text.trim()});
-            if (ok && ctx.mounted) Navigator.pop(ctx);
-          },
-          child: const Text('Save store'),
-        ),
-      ],
     ),
   );
 }

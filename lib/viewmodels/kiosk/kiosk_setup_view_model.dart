@@ -3,7 +3,8 @@ import '../../data/models/store.dart';
 import '../../data/repositories/directory_repository.dart';
 import '../base_view_model.dart';
 
-/// One-time tablet setup: which store is this kiosk in?
+/// Owner signed in on a kiosk tablet / pharmacy counter: which store is it for?
+/// (Store staff skip this — their login already belongs to one store.)
 class KioskSetupViewModel extends BaseViewModel {
   KioskSetupViewModel({required DirectoryRepository directory, required SessionService session})
       : _directory = directory,
@@ -30,7 +31,9 @@ class KioskSetupViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> choose(Store store) => _session.setKioskStore(store.id);
+  Future<void> choose(Store store) => _session.setStore(store.toJson());
 
   Future<void> changeMode() => _session.resetDevice();
+
+  Future<void> signOut() => _session.logout();
 }

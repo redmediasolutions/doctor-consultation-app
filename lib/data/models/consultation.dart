@@ -34,7 +34,8 @@ class Consultation {
     this.doctor,
     this.store,
     this.waitingAhead = 0,
-  });
+    String? channelName,
+  }) : _channelName = channelName;
 
   final String id;
 
@@ -59,8 +60,10 @@ class Consultation {
   final Store? store;
   final int waitingAhead;
 
-  /// The Agora channel for this consultation is its id.
-  String get channelName => id;
+  final String? _channelName;
+
+  /// Agora channel of this consultation (from the server; the id for older servers).
+  String get channelName => (_channelName == null || _channelName.isEmpty) ? id : _channelName;
 
   String get concern => [symptoms.join(', '), complaint].where((s) => s.isNotEmpty).join(' — ');
 
@@ -88,6 +91,7 @@ class Consultation {
       doctor: doctor == null ? null : Doctor.fromJson(doctor),
       store: store == null ? null : Store.fromJson(store),
       waitingAhead: asInt(j['waitingAhead']),
+      channelName: asString(j['channelName']),
     );
   }
 }

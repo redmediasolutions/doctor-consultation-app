@@ -79,34 +79,12 @@ class AdminViewModel extends BaseViewModel {
   Future<bool> addDoctor(Map<String, dynamic> data) async {
     try {
       await _admin.addDoctor(data);
-      onNotice?.call('Doctor added');
+      onNotice?.call('Doctor added — they can sign in with their mobile number');
       await _load();
       return true;
     } catch (e) {
       onNotice?.call(describeError(e));
       return false;
-    }
-  }
-
-  Future<bool> addStore(Map<String, dynamic> data) async {
-    try {
-      await _admin.addStore(data);
-      onNotice?.call('Store added');
-      await _load();
-      return true;
-    } catch (e) {
-      onNotice?.call(describeError(e));
-      return false;
-    }
-  }
-
-  Future<void> resetDemoData() async {
-    try {
-      await _admin.resetDemoData();
-      onNotice?.call('Demo data restored');
-      await _load();
-    } catch (e) {
-      onNotice?.call(describeError(e));
     }
   }
 

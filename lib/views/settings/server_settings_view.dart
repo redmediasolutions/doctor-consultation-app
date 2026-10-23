@@ -6,8 +6,8 @@ import '../../core/theme/app_theme.dart';
 import '../../viewmodels/settings/server_settings_view_model.dart';
 import '../widgets/brand_logo.dart';
 
-/// Where the app finds the MedConnect web project (its API).
-/// Shown on first launch when no address is built in, and from "Server settings".
+/// Where the app finds the Gladskin Node.js API (MedConnect routes under /api/tele).
+/// Built in by default (AppConfig.defaultServerUrl); can be changed from "Server settings".
 class ServerSettingsView extends StatelessWidget {
   const ServerSettingsView({super.key, this.firstRun = false});
 
@@ -51,12 +51,12 @@ class _Body extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       if (firstRun) ...[const BrandLogo(), const SizedBox(height: 22)],
-                      const Text('Connect to your MedConnect server',
+                      const Text('Connect to the server',
                           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 6),
                       const Text(
-                        'Enter the address of the MedConnect website (the Next.js project), '
-                        'for example medconnect-web.vercel.app',
+                        'The Gladskin API server (Node.js), for example api-12v1.gladskin.in. '
+                        'Already set in the app — change it only if the server moves.',
                         style: TextStyle(color: AppColors.muted),
                       ),
                       const SizedBox(height: 20),
@@ -67,7 +67,7 @@ class _Body extends StatelessWidget {
                         textInputAction: TextInputAction.done,
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.dns_outlined),
-                          hintText: 'https://medconnect-web.vercel.app',
+                          hintText: 'https://api-12v1.gladskin.in',
                         ),
                         onChanged: (_) => vm.onChanged(),
                         onSubmitted: (_) => vm.test(),

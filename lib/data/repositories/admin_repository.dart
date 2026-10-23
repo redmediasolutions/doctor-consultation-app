@@ -9,15 +9,12 @@ class AdminRepository {
 
   Future<AdminStats> stats() async => AdminStats.fromJson(asMap(await _api.get('/admin/stats')));
 
-  Future<void> resetDemoData() async {
-    await _api.post('/admin/reset');
-  }
-
   Future<void> addDoctor(Map<String, dynamic> doctor) async {
     await _api.post('/doctors', doctor);
   }
 
-  Future<void> addStore(Map<String, dynamic> store) async {
-    await _api.post('/stores', store);
+  /// e.g. {'isActive': false} to stop a doctor signing in.
+  Future<void> updateDoctor(String id, Map<String, dynamic> changes) async {
+    await _api.patch('/doctors/$id', changes);
   }
 }

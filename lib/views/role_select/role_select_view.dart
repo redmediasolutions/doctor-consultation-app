@@ -14,7 +14,7 @@ class RoleSelectView extends StatelessWidget {
 
   static const _options = [
     (DeviceRole.kiosk, Icons.tablet_android_outlined, 'Patients',
-        'Runs on the tablet in each store. Patients register and see a doctor on video.'),
+        'Runs on the tablet in each store (signed in with the store login). Patients see a doctor on video.'),
     (DeviceRole.doctor, Icons.medical_services_outlined, 'Doctors',
         'Live queue from all stores, video consultation and e-prescriptions.'),
     (DeviceRole.pharmacy, Icons.local_pharmacy_outlined, 'Store staff',
@@ -76,7 +76,8 @@ class RoleSelectView extends StatelessWidget {
                   ],
                 ),
                 const Text(
-                  'Demo PINs — Doctor 1234 · Store staff 1111 · Owner 0000. Change them before going live.',
+                  'Everyone signs in with their registered mobile number (OTP) — the same logins as the Gladskin '
+                  'billing app. Doctors are added from the Owner dashboard.',
                   style: TextStyle(fontSize: 12, color: AppColors.muted),
                 ),
               ],

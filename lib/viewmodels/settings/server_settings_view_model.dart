@@ -8,7 +8,7 @@ import '../../core/config/app_config.dart';
 import '../../core/services/session_service.dart';
 import '../base_view_model.dart';
 
-/// Server address screen: test the connection to the web project, then save.
+/// Server address screen: test the connection to the Gladskin API (GET /api/tele/health), then save.
 class ServerSettingsViewModel extends BaseViewModel {
   ServerSettingsViewModel({required SessionService session})
       : _session = session,
@@ -60,11 +60,11 @@ class ServerSettingsViewModel extends BaseViewModel {
           message = 'Connected. Note: AGORA_APP_CERTIFICATE is not set on the server, so video calls will fail.';
         } else {
           ok = true;
-          message = 'Connected to $url — database and video are ready.';
+          message = 'Connected to $url — MedConnect is ready.';
         }
       } else {
         ok = false;
-        final err = data is Map ? (data['error'] ?? data['database']) : null;
+        final err = data is Map ? (data['message'] ?? data['error']) : null;
         message = err is String ? 'Server problem: $err' : 'The server answered with an error (${res.statusCode}).';
       }
     } on TimeoutException {
@@ -72,7 +72,7 @@ class ServerSettingsViewModel extends BaseViewModel {
       message = 'No answer from $url. Check the address and the internet connection.';
     } on FormatException {
       ok = false;
-      message = 'That address is not a MedConnect server.';
+      message = 'That address is not the Gladskin API server.';
     } catch (_) {
       ok = false;
       message = 'Cannot reach $url. Check the address and the internet connection.';
